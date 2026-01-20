@@ -1,0 +1,39 @@
+name: openproject-prod
+
+services:
+  openproject:
+    image: openproject-slim:latest
+    container_name: openproject
+    ports:
+      - "8080:8080"
+    environment:
+      # Database connection
+      DATABASE_URL: postgres://openproject:Chit%405093@db:5432/openproject_development
+      # Rails config
+      RAILS_ENV: production
+      SECRET_KEY_BASE: development_secret_key_base_CHANGE_ME_IN_PROD
+      OPENPROJECT_HOST__NAME: localhost:8080
+      OPENPROJECT_HTTPS: "false"
+      # Cache config (using file store for simplicity in this minimal setup)
+      OPENPROJECT_RAILS__CACHE__STORE: file_store
+    depends_on:
+      - db
+    volumes:
+      - openproject_assets:/var/openproject/assets
+      - ./:/app
+      - /app/vendor
+      - /app/public/assets
+
+  db:
+    image: postgres:17
+    container_name: openproject-db
+    environment:
+      POSTGRES_DB: openproject_development
+      POSTGRES_USER: openproject
+      POSTGRES_PASSWORD: Chit@5093
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
+  openproject_assets:
