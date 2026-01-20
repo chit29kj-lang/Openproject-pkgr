@@ -44,7 +44,7 @@ import { InjectField } from 'core-app/shared/helpers/angular/inject-field.decora
 import { TOpAutocompleterResource } from 'core-app/shared/components/autocompleter/op-autocompleter/typings';
 
 export interface IWorkPackageAutocompleteItem extends WorkPackageResource {
-  id:string,
+  id: string,
 }
 
 @Component({
@@ -55,19 +55,19 @@ export interface IWorkPackageAutocompleteItem extends WorkPackageResource {
   standalone: false,
 })
 export class WorkPackageRelationsAutocompleteComponent extends OpAutocompleterComponent<IWorkPackageAutocompleteItem> {
-  @Input() workPackage:WorkPackageResource;
+  @Input() workPackage: WorkPackageResource;
 
-  @Input() selectedRelationType:string;
+  @Input() selectedRelationType: string;
 
-  @Input() filterCandidatesFor:string;
+  @Input() filterCandidatesFor: string;
 
   @Input() hiddenOverflowContainer = 'body';
 
-  @InjectField(WorkPackageNotificationService) notificationService:WorkPackageNotificationService;
+  @InjectField(WorkPackageNotificationService) notificationService: WorkPackageNotificationService;
 
-  @InjectField(SchemaCacheService) schemaCacheService:SchemaCacheService;
+  @InjectField(SchemaCacheService) schemaCacheService: SchemaCacheService;
 
-  resource:TOpAutocompleterResource = 'work_packages';
+  resource: TOpAutocompleterResource = 'work_packages';
 
   appendTo = 'body';
 
@@ -80,7 +80,7 @@ export class WorkPackageRelationsAutocompleteComponent extends OpAutocompleterCo
     this.cancel.emit();
   }
 
-  changed(workPackage:IWorkPackageAutocompleteItem|null) {
+  changed(workPackage: IWorkPackageAutocompleteItem | null) {
     if (workPackage) {
       void this.schemaCacheService
         .ensureLoaded(workPackage)
@@ -96,7 +96,8 @@ export class WorkPackageRelationsAutocompleteComponent extends OpAutocompleterCo
     // https://github.com/ng-select/ng-select/issues/1259
     this.ngZone.runOutsideAngular(() => {
       setTimeout(() => {
-        this.ngSelectInstance.dropdownPanel.adjustPosition();
+        const panel = this.ngSelectInstance.dropdownPanel as any;
+        (typeof panel === 'function' ? panel() : panel).adjustPosition();
         document.querySelector(this.hiddenOverflowContainer)?.addEventListener('scroll', () => {
           this.ngSelectInstance.close();
         }, { once: true });
@@ -104,7 +105,7 @@ export class WorkPackageRelationsAutocompleteComponent extends OpAutocompleterCo
     });
   }
 
-  getAutocompleterData(query:string|null):Observable<HalResource[]> {
+  getAutocompleterData(query: string | null): Observable<HalResource[]> {
     // Return when the search string is empty
     if (query === null || query.length === 0) {
       return of([]);
@@ -120,14 +121,14 @@ export class WorkPackageRelationsAutocompleteComponent extends OpAutocompleterCo
     )
       .pipe(
         map((collection) => collection.elements),
-        catchError((error:unknown) => {
+        catchError((error: unknown) => {
           this.notificationService.handleRawError(error);
           return of([]);
         }),
       );
   }
 
-  private createFilters():ApiV3Filter[] {
+  private createFilters(): ApiV3Filter[] {
     const finalFilters = new ApiV3FilterBuilder();
 
     if (this.filters) {

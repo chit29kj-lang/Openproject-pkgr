@@ -43,19 +43,19 @@ import { UserResource } from 'core-app/features/hal/resources/user-resource';
   standalone: false,
 })
 export class MultiSelectEditFieldComponent extends EditFieldComponent implements OnInit {
-  @ViewChild(NgSelectComponent, { static: true }) public ngSelectComponent:NgSelectComponent;
+  @ViewChild(NgSelectComponent, { static: true }) public ngSelectComponent: NgSelectComponent;
 
-  @InjectField() I18n!:I18nService;
+  @InjectField() I18n!: I18nService;
 
-  @InjectField() pathHelperService:PathHelperService;
+  @InjectField() pathHelperService: PathHelperService;
 
-  groupByFn = (item:HalResource):string|null => {
+  groupByFn = (item: HalResource): string | null => {
     if (!this.isVersionResource) return null;
     const project = item.definingProject as HalResource | undefined;
     return project?.name || this.I18n.t('js.project.not_available');
   };
 
-  public availableOptions:any[] = [];
+  public availableOptions: any[] = [];
 
   public text = {
     requiredPlaceholder: this.I18n.t('js.placeholders.selection'),
@@ -64,17 +64,17 @@ export class MultiSelectEditFieldComponent extends EditFieldComponent implements
     cancel: this.I18n.t('js.inplace.button_cancel', { attribute: this.schema.name }),
   };
 
-  public appendTo:any = null;
+  public appendTo: any = null;
 
   public currentValueInvalid = false;
 
-  public showAddNewUserButton:boolean;
+  public showAddNewUserButton: boolean;
 
   private hiddenOverflowContainer = '.__hidden_overflow_container';
 
-  private nullOption:ValueOption;
+  private nullOption: ValueOption;
 
-  private _selectedOption:ValueOption[];
+  private _selectedOption: ValueOption[];
 
   /** Since we need to wait for values to be loaded, remember if the user activated this field */
   private requestFocus = false;
@@ -112,7 +112,7 @@ export class MultiSelectEditFieldComponent extends EditFieldComponent implements
    * @returns {any}
    */
   public buildSelectedOption() {
-    const value:HalResource[] = this.resource[this.name];
+    const value: HalResource[] = this.resource[this.name];
     return value ? _.castArray(value).map((val) => this.findValueOption(val)) : [];
   }
 
@@ -124,9 +124,9 @@ export class MultiSelectEditFieldComponent extends EditFieldComponent implements
    * Map the ValueOption to the actual HalResource option
    * @param val
    */
-  public set selectedOption(val:ValueOption[]) {
+  public set selectedOption(val: ValueOption[]) {
     this._selectedOption = val;
-    const mapper = (val:ValueOption) => {
+    const mapper = (val: ValueOption) => {
       const option = _.find(this.availableOptions, (o) => o.href === val.href) || this.nullOption;
 
       // Special case 'null' value, which angular
@@ -153,7 +153,10 @@ export class MultiSelectEditFieldComponent extends EditFieldComponent implements
 
   public repositionDropdown() {
     if (this.ngSelectComponent && this.ngSelectComponent.dropdownPanel) {
-      setTimeout(() => this.ngSelectComponent.dropdownPanel.adjustPosition(), 0);
+      setTimeout(() => {
+        const panel = this.ngSelectComponent.dropdownPanel as any;
+        (typeof panel === 'function' ? panel() : panel).adjustPosition();
+      }, 0);
     }
   }
 
@@ -165,7 +168,7 @@ export class MultiSelectEditFieldComponent extends EditFieldComponent implements
     }, 0);
   }
 
-  private findValueOption(option?:HalResource):ValueOption {
+  private findValueOption(option?: HalResource): ValueOption {
     let result;
 
     if (option) {
@@ -175,9 +178,9 @@ export class MultiSelectEditFieldComponent extends EditFieldComponent implements
     return result || this.nullOption;
   }
 
-  private setValues(availableValues:any[], sortValuesByName = false) {
+  private setValues(availableValues: any[], sortValuesByName = false) {
     if (sortValuesByName) {
-      availableValues.sort((a:any, b:any) => {
+      availableValues.sort((a: any, b: any) => {
         const nameA = a.name.toLowerCase();
         const nameB = b.name.toLowerCase();
         return nameA < nameB ? -1 : nameA > nameB ? 1 : 0;
@@ -204,7 +207,7 @@ export class MultiSelectEditFieldComponent extends EditFieldComponent implements
     if (Array.isArray(allowedValues)) {
       this.setValues(allowedValues);
     } else if (this.schema.allowedValues) {
-      return this.schema.allowedValues.$load().then((values:CollectionResource) => {
+      return this.schema.allowedValues.$load().then((values: CollectionResource) => {
         // The select options of the project shall be sorted
         if (values.count > 0 && (values.elements[0] as any)._type === 'Project') {
           this.setValues(values.elements, true);
@@ -218,7 +221,7 @@ export class MultiSelectEditFieldComponent extends EditFieldComponent implements
     return Promise.resolve();
   }
 
-  private filterInvalidValues(availableValues:HalResource[]) {
+  private filterInvalidValues(availableValues: HalResource[]) {
     return availableValues.filter((value) => !!value.name);
   }
 
@@ -227,7 +230,7 @@ export class MultiSelectEditFieldComponent extends EditFieldComponent implements
       this.currentValueInvalid = !!(
         // (If value AND)
         // MultiSelect AND there is no value which href is not in the options hrefs
-        (!_.some(this.value, (value:HalResource) => _.some(this.availableOptions, (option) => (option.href === value.href))))
+        (!_.some(this.value, (value: HalResource) => _.some(this.availableOptions, (option) => (option.href === value.href))))
       );
     } else {
       // If no value but required
@@ -251,7 +254,7 @@ export class MultiSelectEditFieldComponent extends EditFieldComponent implements
    * For multi-select fields that are of type User, we want to show a hover card when hovering over users in the
    * dropdown. For this to happen, we must define a URL for the hover card.
    */
-  protected getHoverCardUrl(item:HalResource) {
+  protected getHoverCardUrl(item: HalResource) {
     if (item instanceof UserResource && item.id) {
       return this.pathHelperService.userHoverCardPath(item.id);
     }

@@ -35,9 +35,9 @@ import { tap } from 'rxjs/operators';
 import { OpenProjectPluginContext } from 'core-app/features/plugins/plugin-context';
 
 export interface MatchPreviewDialogSubmittedEvent {
-  detail:{
-    regularExpressions:string;
-    previewGroups:string;
+  detail: {
+    regularExpressions: string;
+    previewGroups: string;
   }
 }
 
@@ -51,14 +51,14 @@ export default class MatchPreviewDialogController extends Controller {
     updateUrl: String,
   };
 
-  declare readonly regexpInputTarget:HTMLInputElement;
-  declare readonly groupNamesInputTarget:HTMLInputElement;
+  declare readonly regexpInputTarget: HTMLInputElement;
+  declare readonly groupNamesInputTarget: HTMLInputElement;
 
-  declare dialog:HTMLDialogElement;
-  declare updateUrlValue:string;
-  declare updateMatchTimeout:number;
+  declare dialog: HTMLDialogElement;
+  declare updateUrlValue: string;
+  declare updateMatchTimeout: number;
 
-  private pluginContextData:OpenProjectPluginContext|null = null;
+  private pluginContextData: OpenProjectPluginContext | null = null;
 
   connect() {
     this.dialog = this.element as HTMLDialogElement;
@@ -66,13 +66,13 @@ export default class MatchPreviewDialogController extends Controller {
     this.groupNamesInputTarget.addEventListener('input', () => { this.updateMatchPreview(); });
   }
 
-  updateRegexpValue(value:string) {
+  updateRegexpValue(value: string) {
     this.regexpInputTarget.value = value;
     this.updateMatchPreview();
   }
 
   submitDialog() {
-    const event:MatchPreviewDialogSubmittedEvent = {
+    const event: MatchPreviewDialogSubmittedEvent = {
       detail: {
         regularExpressions: this.regexpInputTarget.value,
         previewGroups: this.groupNamesInputTarget.value,
@@ -83,9 +83,9 @@ export default class MatchPreviewDialogController extends Controller {
   }
 
   private updateMatchPreview() {
-    if(this.updateMatchTimeout) clearTimeout(this.updateMatchTimeout);
+    if (this.updateMatchTimeout) clearTimeout(this.updateMatchTimeout);
 
-    this.updateMatchTimeout = setTimeout(() => { this.doUpdateMatchPreview(); }, 500);
+    this.updateMatchTimeout = window.setTimeout(() => { this.doUpdateMatchPreview(); }, 500);
   }
 
   private doUpdateMatchPreview() {
@@ -104,7 +104,7 @@ export default class MatchPreviewDialogController extends Controller {
     });
   }
 
-  private get pluginContext():Observable<OpenProjectPluginContext> {
+  private get pluginContext(): Observable<OpenProjectPluginContext> {
     if (this.pluginContextData === null) {
       return from(window.OpenProject.getPluginContext()).pipe(
         tap((context) => {
